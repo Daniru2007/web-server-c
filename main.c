@@ -5,11 +5,13 @@
 #include "sys/socket.h"
 #include "unistd.h"
 #include <asm-generic/socket.h>
+#include <setjmp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 #define PORT 8000
 
+jmp_buf exception_buffer;
 int main() {
   int server_fd, new_socket;
   ssize_t valread;
@@ -53,10 +55,25 @@ int main() {
       exit(EXIT_FAILURE);
     }
     valread = read(new_socket, buffer, 1024 - 1);
+    char *buf = malloc(sizeof(buffer));
+    strcpy(buf, buffer);
+    char *tok = strtok(buf, "\n");
+    char *method = malloc(sizeof(char) * strlen(tok));
+    char *url = malloc(sizeof(char) * strlen(tok));
+    char *http_version = malloc(sizeof(char) * strlen(tok));
     printf("%s\n", buffer);
+    printf("\n");
+    printf("\n");
+    printf("\n");
+    sscanf(tok, "%s %s %s", method, url, http_version);
+    printf("%s-%s-%s\n", method, url, http_version);
     send(new_socket, hello, strlen(hello), 0);
     printf("Hello send to the client\n");
 
+    free(buf);
+    free(method);
+    free(url);
+    free(http_version);
     close(new_socket);
   }
   close(server_fd);
