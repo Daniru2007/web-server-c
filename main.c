@@ -19,8 +19,8 @@ int main() {
   int opt = 1;
   socklen_t addrlen = sizeof(address);
   char buffer[1024] = {0};
-  char *hello = "HTTP/1.1 200 OK\r\nContent-Type: "
-                "text/html\r\n\r\n<html><body><h1>Hi</h1></body></html>";
+  char *msg = "HTTP/1.1 200 OK\r\nContent-Type: "
+              "text/html\r\n\r\n<html><body><h1>Hi</h1></body></html>";
 
   printf("creating socket...\n");
   if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -67,7 +67,7 @@ int main() {
     printf("\n");
     sscanf(tok, "%s %s %s", method, url, http_version);
     printf("%s-%s-%s\n", method, url, http_version);
-    send(new_socket, hello, strlen(hello), 0);
+    send(new_socket, msg, strlen(msg), 0);
     printf("Hello send to the client\n");
 
     free(buf);
