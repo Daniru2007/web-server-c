@@ -63,8 +63,8 @@ int main() {
     char *http_version = (char *)malloc(sizeof(char) * strlen(tok));
     sscanf(tok, "%s %s %s", method, url, http_version);
     char **args = (char **)malloc(sizeof(char *) * 100);
-    int i = 0;
     printf("%s|%s|%s\n", method, url, http_version);
+    int i = 0;
     while (1) {
       tok = strtok(NULL, "\n");
       if (tok == NULL) {
@@ -84,6 +84,10 @@ int main() {
     send(new_socket, msg, strlen(msg), 0);
     printf("Hello send to the client\n");
 
+    for (int i = 0; i < 100; i++) {
+      free(args[i]);
+    }
+    free(args);
     free(buf);
     free(method);
     free(url);
