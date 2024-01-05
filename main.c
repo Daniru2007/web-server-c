@@ -42,12 +42,12 @@ int main() {
     perror("bind failed");
     exit(EXIT_FAILURE);
   }
+  printf("listening\n");
+  if (listen(server_fd, 3) < 0) {
+    perror("listen");
+    exit(EXIT_FAILURE);
+  }
   while (1) {
-    printf("listening\n");
-    if (listen(server_fd, 3) < 0) {
-      perror("listen");
-      exit(EXIT_FAILURE);
-    }
     printf("accepting\n");
     if ((new_socket =
              accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0) {
@@ -58,15 +58,29 @@ int main() {
     char *buf = malloc(sizeof(buffer));
     strcpy(buf, buffer);
     char *tok = strtok(buf, "\n");
-    char *method = malloc(sizeof(char) * strlen(tok));
-    char *url = malloc(sizeof(char) * strlen(tok));
-    char *http_version = malloc(sizeof(char) * strlen(tok));
-    printf("%s\n", buffer);
-    printf("\n");
-    printf("\n");
-    printf("\n");
+    char *method = (char *)malloc(sizeof(char) * strlen(tok));
+    char *url = (char *)malloc(sizeof(char) * strlen(tok));
+    char *http_version = (char *)malloc(sizeof(char) * strlen(tok));
     sscanf(tok, "%s %s %s", method, url, http_version);
-    printf("%s-%s-%s\n", method, url, http_version);
+    char **args = (char **)malloc(sizeof(char *) * 100);
+    int i = 0;
+    printf("%s|%s|%s\n", method, url, http_version);
+    while (1) {
+      tok = strtok(NULL, "\n");
+      if (tok == NULL) {
+        break;
+      }
+      if (strcmp(tok, "\r") == 0) {
+        break;
+      }
+      args[i] = (char *)malloc(sizeof(char) * strlen(tok));
+      strcpy(args[i], tok);
+      printf("%s\n", args[i]);
+      i++;
+    }
+
+    // printf("%s\n", buffer);
+
     send(new_socket, msg, strlen(msg), 0);
     printf("Hello send to the client\n");
 
