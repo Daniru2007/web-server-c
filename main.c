@@ -79,6 +79,11 @@ int main() {
       i++;
     }
 
+    for (int i = 0; i < 100; i++) {
+      // TODO: parse the request like Content: shit -> Content = shit
+      // args[i];
+    }
+
     // printf("%s\n", buffer);
 
     send(new_socket, msg, strlen(msg), 0);
