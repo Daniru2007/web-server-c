@@ -5,13 +5,11 @@
 #include "sys/socket.h"
 #include "unistd.h"
 #include <asm-generic/socket.h>
-#include <setjmp.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 
 #define PORT 8000
 
-jmp_buf exception_buffer;
 int main() {
   int server_fd, new_socket;
   ssize_t valread;
