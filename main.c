@@ -76,14 +76,16 @@ int main() {
       if (strcmp(tok, "\r") == 0) {
         break;
       }
-      sscanf(tok, "%[^:] %[^\n]", heads[i][0], heads[i][1]);
+      sscanf(tok, "%[^:]%*c%*c%[^\n]", heads[i][0], heads[i][1]);
       i++;
     }
 
     for (int x = 0; x < i; x++) {
-      printf("%s::", heads[x][0]);
+      printf("%s->", heads[x][0]);
       printf("%s\n", heads[x][1]);
     }
+
+    send(new_socket, msg, strlen(msg), 0);
 
     for (int y = 0; y < i; y++) {
       free(heads[y][0]);
@@ -95,9 +97,6 @@ int main() {
     }
     free(heads);
     heads = NULL;
-
-    send(new_socket, msg, strlen(msg), 0);
-
     free(buf);
     free(method);
     free(url);
