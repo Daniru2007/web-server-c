@@ -22,13 +22,13 @@ int main() {
   char *msg = "HTTP/1.1 200 OK\r\nContent-Type: "
               "text/html\r\n\r\n<html><body><h1>Hi</h1></body></html>";
 
-  // printf("creating socket...\n");
+  printf("creating socket...\n");
   if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     perror("socket not created\n");
     exit(1);
   }
 
-  // printf("setting options\n");
+  printf("setting options\n");
   if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt,
                  sizeof(opt))) {
     perror("socket options not setted\n");
@@ -37,18 +37,18 @@ int main() {
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = INADDR_ANY;
   address.sin_port = htons(PORT);
-  // printf("binding the server to PORT 8000\n");
+  printf("binding the server to PORT 8000\n");
   if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
     perror("bind failed");
     exit(EXIT_FAILURE);
   }
-  // printf("listening\n");
+  printf("listening\n");
   if (listen(server_fd, 3) < 0) {
     perror("listen");
     exit(EXIT_FAILURE);
   }
   while (1) {
-    // printf("accepting\n");
+    printf("accepting\n");
     if ((new_socket =
              accept(server_fd, (struct sockaddr *)&address, &addrlen)) < 0) {
       perror("accept");
@@ -62,59 +62,39 @@ int main() {
     char *url = (char *)malloc(strlen(tok));
     char *http_version = (char *)malloc(strlen(tok));
     sscanf(tok, "%s %s %s", method, url, http_version);
-    char **args = (char **)malloc(sizeof(char *) * 100);
     // printf("%s|%s|%s\n", method, url, http_version);
     int i = 0;
+    char ***heads = (char ***)malloc(sizeof(char **) * 100);
     while (1) {
       tok = strtok(NULL, "\n");
+      heads[i] = (char **)malloc(sizeof(char *) * 100);
+      heads[i][0] = (char *)malloc(strlen(tok));
+      heads[i][1] = (char *)malloc(strlen(tok));
       if (tok == NULL) {
         break;
       }
       if (strcmp(tok, "\r") == 0) {
         break;
       }
-      args[i] = (char *)malloc(sizeof(char) * strlen(tok));
-      strcpy(args[i], tok);
-      // printf("%s\n", args[i]);
+      sscanf(tok, "%[^:] %[^\n]", heads[i][0], heads[i][1]);
       i++;
     }
 
-    char ***heads = (char ***)malloc(sizeof(char **) * 100);
-    char **argscpy = (char **)malloc(sizeof(char *) * 100);
-    for (int x = 0; x < 100; x++) {
-      strcpy(argscpy[x], args[x]);
+    for (int x = 0; x < i; x++) {
+      printf("%s::", heads[x][0]);
+      printf("%s\n", heads[x][1]);
     }
-    // for (int x = 0; x < i; x++) {
-    //   heads[x] = (char **)malloc(sizeof(char *) * 100);
-    //   heads[x][0] = (char *)malloc(strlen(argscpy[x]));
-    //   heads[x][1] = (char *)malloc(strlen(argscpy[x]));
-    //   char *test = strtok(argscpy[x], ": ");
-    //   strcpy(heads[x][0], test);
-    //   test = strtok(NULL, "");
-    //   strcpy(heads[x][1], test);
-    // }
-    //
-    // for (int x = 0; x < i; x++) {
-    //
-    //   printf("%s::", heads[x][0]);
-    //   printf("%s\n", heads[x][1]);
-    // }
-    //
-    // for (int y = 0; y < i; y++) {
-    //   free(heads[y][0]);
-    //   heads[y][0] = NULL;
-    //   free(heads[y][1]);
-    //   heads[y][1] = NULL;
-    //   free(heads[y]);
-    //   heads[y] = NULL;
-    //   printf("%p: %s\n", args[y], args[y]);
-    //   free(args[y]);
-    //   args[y] = NULL;
-    // }
-    // free(args);
-    // args = NULL;
-    // free(heads);
-    // heads = NULL;
+
+    for (int y = 0; y < i; y++) {
+      free(heads[y][0]);
+      heads[y][0] = NULL;
+      free(heads[y][1]);
+      heads[y][1] = NULL;
+      free(heads[y]);
+      heads[y] = NULL;
+    }
+    free(heads);
+    heads = NULL;
 
     send(new_socket, msg, strlen(msg), 0);
 
